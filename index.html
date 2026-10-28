@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nafa Gestion — Prototype</title>
+<style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#17211b;background:#f4f7f4;--green:#176b45;--line:#dce5de;--muted:#66756b}
+*{box-sizing:border-box}body{margin:0}header{background:#124d35;color:#fff;padding:22px max(18px,calc((100% - 1120px)/2));}
+header h1{margin:0;font-size:26px}header p{margin:7px 0 0;color:#d7eee0}
+main{max-width:1120px;margin:22px auto;padding:0 16px 40px}.notice{background:#fff7dd;border:1px solid #ead89a;padding:12px 14px;border-radius:10px;font-size:13px;margin-bottom:18px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{border:1px solid var(--line);background:white;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:600;color:#294235}.tab.active{background:var(--green);color:white;border-color:var(--green)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}.card,.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:16px}.metric-label{font-size:13px;color:var(--muted)}.metric{font-size:24px;font-weight:750;margin-top:7px;overflow-wrap:anywhere}.panel h2{font-size:18px;margin:0 0 14px}.layout{display:grid;grid-template-columns:1fr 1.25fr;gap:14px}.field{display:grid;gap:6px;margin-bottom:12px}.field label{font-size:13px;font-weight:650;color:#405348}.field input,.field select{width:100%;padding:10px;border:1px solid #cbd8ce;border-radius:8px;font:inherit;background:white}.btn{background:var(--green);color:white;border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}.btn.secondary{background:#e8f1eb;color:#1a563a}.btn.danger{background:#9c3434}.actions{display:flex;gap:8px;flex-wrap:wrap}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e8eee9;white-space:nowrap}th{font-size:12px;color:var(--muted)}.empty{color:var(--muted);font-size:14px;padding:16px 0}.hidden{display:none!important}.low{color:#a33b26;font-weight:700}.tag{font-size:12px;border-radius:20px;padding:4px 8px;background:#e5f2e9;color:#175b37}.small{font-size:12px;color:var(--muted);line-height:1.5}.section-gap{margin-top:14px}.footer{font-size:12px;color:var(--muted);margin-top:20px}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}.metric{font-size:21px}}
+</style>
+</head>
+<body>
+<header><h1>Nafa Gestion</h1><p>Gestion simple des ventes, du stock et de la caisse · FCFA</p></header>
+<main>
+<div class="notice"><strong>Prototype de démonstration :</strong> les données sont enregistrées uniquement dans ce navigateur sur cet appareil. N'utilisez pas encore cette version pour votre comptabilité réelle et ne saisissez pas de données confidentielles.</div>
+<nav>
+<button class="tab active" data-tab="dashboard">Tableau de bord</button>
+<button class="tab" data-tab="products">Produits & stock</button>
+<button class="tab" data-tab="sales">Ventes</button>
+<button class="tab" data-tab="expenses">Dépenses</button>
+</nav>
+<section id="dashboard">
+<div class="cards">
+<div class="card"><div class="metric-label">Ventes enregistrées</div><div class="metric" id="mSales">0 FCFA</div></div>
+<div class="card"><div class="metric-label">Argent encaissé sur les ventes</div><div class="metric" id="mCash">0 FCFA</div></div>
+<div class="card"><div class="metric-label">Dépenses enregistrées</div><div class="metric" id="mExpenses">0 FCFA</div></div>
+<div class="card"><div class="metric-label">Bénéfice brut estimé</div><div class="metric" id="mProfit">0 FCFA</div></div>
+</div>
+<div class="layout">
+<div class="panel"><h2>Résumé du stock</h2><p id="stockSummary" class="empty">Aucun produit enregistré.</p><p class="small">Valeur du stock calculée au prix d'achat. Le bénéfice brut estimé correspond aux ventes moins le coût d'achat des produits vendus. Il ne s'agit pas du bénéfice net.</p></div>
+<div class="panel"><h2>Ventes récentes</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Produit</th><th>Total</th><th>Paiement</th></tr></thead><tbody id="recentSales"></tbody></table></div></div>
+</div>
+</section>
+<section id="products" class="hidden">
+<div class="layout">
+<div class="panel"><h2>Ajouter un produit</h2><form id="productForm">
+<div class="field"><label for="pName">Nom du produit</label><input id="pName" required maxlength="80" placeholder="Ex. Riz 50 kg"></div>
+<div class="field"><label for="pBuy">Prix d'achat unitaire (FCFA)</label><input id="pBuy" type="number" min="0" step="1" required></div>
+<div class="field"><label for="pSell">Prix de vente unitaire (FCFA)</label><input id="pSell" type="number" min="0" step="1" required></div>
+<div class="field"><label for="pStock">Stock initial (quantité)</label><input id="pStock" type="number" min="0" step="1" required></div>
+<div class="field"><label for="pAlert">Seuil d'alerte de stock</label><input id="pAlert" type="number" min="0" step="1" value="5" required></div>
+<button class="btn" type="submit">Ajouter le produit</button></form></div>
+<div class="panel"><h2>Catalogue et stock</h2><div class="table-wrap"><table><thead><tr><th>Produit</th><th>Achat</th><th>Vente</th><th>Stock</th><th>État</th></tr></thead><tbody id="productsTable"></tbody></table></div><p class="small">Les prix sont en FCFA. Les produits vendus diminuent automatiquement le stock.</p></div>
+</div>
+</section>
+<section id="sales" class="hidden">
+<div class="layout">
+<div class="panel"><h2>Enregistrer une vente</h2><form id="saleForm">
+<div class="field"><label for="sProduct">Produit</label><select id="sProduct" required></select></div>
+<div class="field"><label for="sQty">Quantité vendue</label><input id="sQty" type="number" min="1" step="1" required value="1"></div>
+<div class="field"><label for="sPaid">Montant payé maintenant (FCFA)</label><input id="sPaid" type="number" min="0" step="1" required value="0"></div>
+<div class="field"><label for="sMethod">Mode de paiement</label><select id="sMethod"><option>Espèces</option><option>Mobile Money</option><option>Crédit client</option><option>Mixte</option></select></div>
+<p id="salePreview" class="small">Sélectionnez un produit pour voir le montant.</p>
+<button class="btn" type="submit">Enregistrer la vente</button></form></div>
+<div class="panel"><h2>Historique des ventes</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Produit</th><th>Qté</th><th>Total</th><th>Payé</th><th>Crédit restant</th></tr></thead><tbody id="salesTable"></tbody></table></div></div>
+</div>
+</section>
+<section id="expenses" class="hidden">
+<div class="layout">
+<div class="panel"><h2>Enregistrer une dépense</h2><form id="expenseForm">
+<div class="field"><label for="eLabel">Motif</label><input id="eLabel" required maxlength="100" placeholder="Ex. Transport"></div>
+<div class="field"><label for="eAmount">Montant (FCFA)</label><input id="eAmount" type="number" min="1" step="1" required></div>
+<div class="field"><label for="eMethod">Mode de paiement</label><select id="eMethod"><option>Espèces</option><option>Mobile Money</option><option>Autre</option></select></div>
+<button class="btn" type="submit">Ajouter la dépense</button></form></div>
+<div class="panel"><h2>Historique des dépenses</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Motif</th><th>Montant</th><th>Paiement</th></tr></thead><tbody id="expensesTable"></tbody></table></div></div>
+</div>
+</section>
+<div class="footer">Nafa Gestion · Version prototype 0.1 · Démonstration uniquement</div>
+</main>
+<script>
+const KEY="nafa-gestion-prototype-v1";
+const demo={products:[],sales:[],expenses:[]};
+let db;
+try{db=JSON.parse(localStorage.getItem(KEY))||demo;if(!db.products||!db.sales||!db.expenses)db=demo}catch(e){db=demo}
+const money=n=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0}).format(n||0)+" FCFA";
+const dateText=d=>new Date(d).toLocaleDateString("fr-FR");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function showTab(name){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));["dashboard","products","sales","expenses"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==name))}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function render(){
+ const salesTotal=db.sales.reduce((s,x)=>s+x.total,0);
+ const cashTotal=db.sales.reduce((s,x)=>s+x.paid,0);
+ const expensesTotal=db.expenses.reduce((s,x)=>s+x.amount,0);
+ const costSold=db.sales.reduce((s,x)=>s+x.cost,0);
+ document.getElementById("mSales").textContent=money(salesTotal);
+ document.getElementById("mCash").textContent=money(cashTotal);
+ document.getElementById("mExpenses").textContent=money(expensesTotal);
+ document.getElementById("mProfit").textContent=money(salesTotal-costSold);
+ const stockValue=db.products.reduce((s,p)=>s+p.buy*p.stock,0);
+ const low=db.products.filter(p=>p.stock<=p.alert);
+ document.getElementById("stockSummary").innerHTML=db.products.length?`<p><strong>${db.products.length}</strong> produit(s) · Valeur d'achat du stock : <strong>${money(stockValue)}</strong></p><p>Produits sous le seuil : ${low.length?low.map(p=>`<span class="low">${esc(p.name)} (${p.stock})</span>`).join(", "):"aucun"}</p>`:"Aucun produit enregistré.";
+ document.getElementById("productsTable").innerHTML=db.products.length?db.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${money(p.buy)}</td><td>${money(p.sell)}</td><td>${p.stock}</td><td>${p.stock<=p.alert?'<span class="low">Stock faible</span>':'<span class="tag">Disponible</span>'}</td></tr>`).join(""):'<tr><td colspan="5" class="empty">Aucun produit.</td></tr>';
+ document.getElementById("sProduct").innerHTML=db.products.length?db.products.map(p=>`<option value="${p.id}">${esc(p.name)} — ${money(p.sell)} (stock ${p.stock})</option>`).join(""):'<option value="">Ajoutez d’abord un produit</option>';
+ document.getElementById("salesTable").innerHTML=db.sales.length?[...db.sales].reverse().map(x=>`<tr><td>${dateText(x.date)}</td><td>${esc(x.name)}</td><td>${x.qty}</td><td>${money(x.total)}</td><td>${money(x.paid)}</td><td>${money(x.total-x.paid)}</td></tr>`).join(""):'<tr><td colspan="6" class="empty">Aucune vente.</td></tr>';
+ document.getElementById("recentSales").innerHTML=db.sales.length?[...db.sales].reverse().slice(0,5).map(x=>`<tr><td>${dateText(x.date)}</td><td>${esc(x.name)}</td><td>${money(x.total)}</td><td>${esc(x.method)}</td></tr>`).join(""):'<tr><td colspan="4" class="empty">Aucune vente.</td></tr>';
+ document.getElementById("expensesTable").innerHTML=db.expenses.length?[...db.expenses].reverse().map(x=>`<tr><td>${dateText(x.date)}</td><td>${esc(x.label)}</td><td>${money(x.amount)}</td><td>${esc(x.method)}</td></tr>`).join(""):'<tr><td colspan="4" class="empty">Aucune dépense.</td></tr>';
+ updatePreview();
+}
+function updatePreview(){
+ const p=db.products.find(p=>p.id===document.getElementById("sProduct").value);
+ const q=Number(document.getElementById("sQty").value)||0;
+ document.getElementById("salePreview").textContent=p?`Total : ${money(p.sell*q)} · Stock disponible : ${p.stock} · Coût d’achat estimé : ${money(p.buy*q)}`:"Ajoutez un produit avant d’enregistrer une vente.";
+}
+document.getElementById("pName").addEventListener("input",()=>{});
+document.getElementById("productForm").addEventListener("submit",e=>{
+ e.preventDefault();const name=document.getElementById("pName").value.trim(),buy=Number(document.getElementById("pBuy").value),sell=Number(document.getElementById("pSell").value),stock=Number(document.getElementById("pStock").value),alert=Number(document.getElementById("pAlert").value);
+ if(!name||[buy,sell,stock,alert].some(n=>!Number.isFinite(n)||n<0)||![stock,alert].every(Number.isInteger)){alert("Vérifiez les valeurs saisies.");return}
+ db.products.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name,buy,sell,stock,alert});save();e.target.reset();document.getElementById("pAlert").value=5;
+});
+document.getElementById("sProduct").addEventListener("change",updatePreview);
+document.getElementById("sQty").addEventListener("input",updatePreview);
+document.getElementById("saleForm").addEventListener("submit",e=>{
+ e.preventDefault();const p=db.products.find(p=>p.id===document.getElementById("sProduct").value),qty=Number(document.getElementById("sQty").value),paid=Number(document.getElementById("sPaid").value),method=document.getElementById("sMethod").value;
+ if(!p){alert("Ajoutez d’abord un produit.");return}
+ if(!Number.isInteger(qty)||qty<1||qty>p.stock){alert("Quantité invalide ou stock insuffisant.");return}
+ const total=p.sell*qty;if(!Number.isFinite(paid)||paid<0||paid>total){alert("Le montant payé doit être compris entre 0 et le total de la vente.");return}
+ db.sales.push({id:String(Date.now()),date:new Date().toISOString(),productId:p.id,name:p.name,qty,total,paid,method,cost:p.buy*qty});p.stock-=qty;save();document.getElementById("sQty").value=1;document.getElementById("sPaid").value=0;
+});
+document.getElementById("expenseForm").addEventListener("submit",e=>{
+ e.preventDefault();const label=document.getElementById("eLabel").value.trim(),amount=Number(document.getElementById("eAmount").value),method=document.getElementById("eMethod").value;
+ if(!label||!Number.isFinite(amount)||amount<=0){alert("Vérifiez le motif et le montant.");return}
+ db.expenses.push({date:new Date().toISOString(),label,amount,method});save();e.target.reset();
+});
+render();
+</script>
+</body>
+</html>
